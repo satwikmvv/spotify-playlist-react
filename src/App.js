@@ -77,7 +77,8 @@ class Filter extends Component {
     return(
       <div style={defaultStyle}>
         <img/>
-        <input type='text'/>
+        <input type='text' onKeyUp={event =>
+          this.props.onSearch(event.target.value)} />
       </div>
     )
   }
@@ -103,12 +104,18 @@ class App extends Component {
 
   constructor() {
     super();
-    this.state = {serverData: {}}
+    this.state = {
+      serverData: {},
+      filterString: ''
+    }
   }
   componentDidMount() {
     setTimeout(() => {
       this.setState({serverData: fakeServerData});
     }, 1000);
+    setTimeout(() => {
+      this.setState({filterString: 'playlist'});
+    }, 2000);
   }
 
   render() {
@@ -119,10 +126,12 @@ class App extends Component {
             <h1 style= {{...defaultStyle,'font-size':'54px'}}>Welcome {this.state.serverData.user.name}</h1>
             <PlaylistCounter playlists={this.state.serverData.user.playlists}/>
             <HoursCounter playlists={this.state.serverData.user.playlists}/>
-            <Filter />
-            <div style={{display:'flex', 'flex-flow':'row nowrap', justifyContent: 'space-around'}}>
-              {this.state.serverData.user.playlists.map(x => 
-              <Playlist playlist={x} />)
+            <Filter onSearch={text=>{this.setState({filterString: text})}}/>
+            <div style={{display:'flex', flexFlow :'row nowrap', justifyContent: 'space-around'}}>
+              {this.state.serverData.user.playlists.filter( y =>
+                y.name.toLowerCase().includes(this.state.filterString.toLowerCase())
+              ).map(x => 
+                <Playlist playlist={x} />)
               }
             </div>
           </div> : <h1 style={defaultStyle}>Loading...</h1>
